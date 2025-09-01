@@ -1,11 +1,10 @@
 import React from "react";
-// import MobileNavigation from "@/components/MobileNavigation";
 import Header from "@/components/Header";
 import Sidebar from "@/components/Sidebar";
 import { getCurrentUser } from "@/lib/actions/user.actions";
 import { redirect } from "next/navigation";
 import MobileNavigation from "@/components/MobileNavigation";
-// import { Toaster } from "@/components/ui/toaster";
+import { Toaster } from "@/components/ui/toaster";
 
 export const dynamic = "force-dynamic";
 
@@ -20,11 +19,11 @@ const Layout = async ({ children }: { children: React.ReactNode }) => {
 
       <section className="flex h-full flex-1 flex-col">
         <MobileNavigation {...currentUser} />
-        <Header />
+        <Header userId={currentUser.$id} accountId={currentUser.$id} />
         <div className="main-content">{children}</div>
       </section>
 
-      {/* <Toaster /> */}
+      <Toaster />
     </main>
   );
 };
