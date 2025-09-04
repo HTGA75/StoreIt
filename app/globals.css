@@ -207,7 +207,7 @@
 
   /* Dashboard */
   .dashboard-container {
-    @apply mx-auto grid max-w-7xl grid-cols-1 gap-6 md:grid-cols-2 xl:gap-10 !important;
+    @apply mx-auto md:grid max-w-7xl flex flex-col-reverse gap-6 md:grid-cols-2 xl:gap-10 !important;
   }
   .dashboard-summary-list {
     @apply mt-6 grid grid-cols-1 gap-4 xl:mt-10 xl:grid-cols-2 xl:gap-9 !important;
@@ -225,7 +225,7 @@
     @apply h5 relative z-20 text-center !important;
   }
   .dashboard-recent-files {
-    @apply h-full rounded-[20px] bg-white p-5 xl:p-8 !important;
+    @apply h-80 max-h-[300px] md:max-h-max md:h-full rounded-[20px] bg-white p-5 xl:p-8 overflow-auto !important;
   }
   .recent-file-details {
     @apply flex w-full flex-col xl:flex-row xl:justify-between !important;
