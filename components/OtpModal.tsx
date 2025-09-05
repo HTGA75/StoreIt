@@ -31,12 +31,8 @@ const OtpModal = ({accountId, email} : {accountId: string, email: string}) => {
         e.preventDefault();
         setIsLoading(true);
 
-        console.log({ accountId, password });
-
         try {
         const sessionId = await verifySecret({ accountId, password });
-
-        console.log({ sessionId });
 
         if (sessionId) router.push("/");
         } catch (error) {

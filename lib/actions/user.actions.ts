@@ -2,11 +2,10 @@
 
 import { createAdminClient, createSessionClient } from "../appwrite";
 import { appwriteConfig } from "../appwrite/config";
-import { Query, ID, Account } from "node-appwrite";
+import { Query, ID, Account, Avatars } from "node-appwrite";
 import { parseStringify } from "../utils";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { avatarPlaceholderUrl } from "@/constants";
 import { string } from "zod";
 
 const getUserByEmail = async (email: string) => {
@@ -51,8 +50,14 @@ export const createAccount = async ({
     if(!accountId) throw new Error("Failed to send and OTP");
 
     if (!existingUser) {
-        const {databases} = await createAdminClient()
-        
+        const {databases, avatars} = await createAdminClient()
+
+        //Generate avatar URL using Appwrite's avatar service
+        const buffer = await avatars.getInitials(fullName, 100, 100, 'fa7275');
+
+        const base64Avatar = Buffer.from(buffer).toString("base64");
+        const dataUrl = `data:image/png;base64,${base64Avatar}`;
+
         await databases.createDocument(
             appwriteConfig.databaseId,
             appwriteConfig.usersCollectionId,
@@ -60,7 +65,7 @@ export const createAccount = async ({
             {
                 fullName,
                 email,
-                avatar: avatarPlaceholderUrl,
+                avatar: dataUrl,
                 accountId
             },
         );

@@ -15,8 +15,6 @@ export default async function Home() {
     getFiles({types: [], limit: 10}),
   ])
 
-  console.log(files)
-
   const usageSummary = getUsageSummary(chartData)
 
   return (
