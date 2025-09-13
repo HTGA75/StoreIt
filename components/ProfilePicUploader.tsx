@@ -5,21 +5,23 @@ import { useDropzone } from 'react-dropzone'
 import { MAX_FILE_SIZE } from "@/constants";
 import { Button } from './ui/button';
 import Image from 'next/image';
-import { getFileType } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
+import { updateAccount } from '@/lib/actions/user.actions';
+import { useRouter } from 'next/navigation';
 
-const ProfilePicUploader = () => {
+const ProfilePicUploader = ({userId}: {userId: string}) => {
     const [file, setFile] = useState<File>()
     const { toast } = useToast();
+    const router = useRouter()
 
-    const onDrop = useCallback((acceptedFiles: File[]) => {
-        const file = acceptedFiles[acceptedFiles.length - 1];
+    const onDrop = useCallback(async (acceptedFiles: File[]) => {
+        const acceptedFile = acceptedFiles[acceptedFiles.length - 1];
         
-        if(file.size > MAX_FILE_SIZE) {
+        if(acceptedFile.size > MAX_FILE_SIZE) {
             return toast({
                 description: (
                     <p className="body-2 text-white">
-                        <span className="font-semibold">{file.name}</span> is too large.
+                        <span className="font-semibold">{acceptedFile.name}</span> is too large.
                         Max file size is 50MB.
                     </p>
                 ),
@@ -27,9 +29,28 @@ const ProfilePicUploader = () => {
             });
         }
 
-        setFile(file);
-    }, [toast])
-    
+        try {
+            setFile(acceptedFile);
+            await updateAccount({
+                userId, 
+                file: acceptedFile // Use acceptedFile instead of file state
+            });
+
+            router.refresh();
+            
+            toast({
+                description: "Profile picture updated successfully",
+                className: "success-toast",
+            });
+        } catch (error) {
+            toast({
+                description: "Failed to update profile picture",
+                className: "error-toast",
+            });
+        }
+
+    }, [userId, toast]) // Add dependencies
+
     const {getRootProps, getInputProps, isDragActive} = useDropzone({
         onDrop,
         accept: {

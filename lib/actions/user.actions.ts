@@ -3,10 +3,11 @@
 import { createAdminClient, createSessionClient } from "../appwrite";
 import { appwriteConfig } from "../appwrite/config";
 import { Query, ID, Account, Avatars } from "node-appwrite";
-import { parseStringify } from "../utils";
+import { constructFileUrl, parseStringify } from "../utils";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { string } from "zod";
+import { InputFile } from "node-appwrite/file";
 
 const getUserByEmail = async (email: string) => {
     const {databases} = await createAdminClient()
@@ -72,6 +73,47 @@ export const createAccount = async ({
     }
 
     return parseStringify({accountId})
+}
+
+export const updateAccount = async ({
+    userId,
+    file
+}: {
+    userId: string
+    file: File | undefined
+}) => {
+    const { databases, storage } = await createAdminClient()
+
+    try {
+        // Convert the file to InputFile format
+        const inputFile = InputFile.fromBuffer(file, file.name);
+
+        // Upload file to storage
+        const bucketFile = await storage.createFile(
+            appwriteConfig.bucketId,
+            ID.unique(),
+            inputFile
+        );
+
+        // Create URL using the utility function
+        const fileUrl = constructFileUrl(bucketFile.$id);
+        console.log(fileUrl)
+
+        // Update user document
+        const updatedUser = await databases.updateDocument(
+            appwriteConfig.databaseId,
+            appwriteConfig.usersCollectionId,
+            userId,
+            {
+                avatar: fileUrl,
+            },
+        );
+
+        return parseStringify(updatedUser);
+    } catch (error) {
+        handleError(error, "Failed to update avatar");
+        return null;
+    }
 }
 
 export const verifySecret = async ({

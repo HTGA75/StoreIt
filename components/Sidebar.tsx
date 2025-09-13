@@ -26,9 +26,10 @@ interface Props {
   fullName: string,
   avatar: string,
   email: string,
+  $id: string
 }
 
-const Sidebar = ({fullName, avatar, email} : Props) => {
+const Sidebar = ({fullName, avatar, email, $id} : Props) => {
   const pathname = usePathname()
   return (
     <aside className='sidebar'>
@@ -109,7 +110,7 @@ const Sidebar = ({fullName, avatar, email} : Props) => {
                   Cancel
                 </Button>
               </DialogClose>
-              <ProfilePicUploader />
+              <ProfilePicUploader userId={$id} />
             </DialogFooter>
           </DialogContent>
         </Dialog>
