@@ -20,6 +20,7 @@ import Image from 'next/image'
 import { navItems } from '@/constants'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
+import ProfilePicUploader from "./ProfilePicUploader"
 
 interface Props {
   fullName: string,
@@ -108,9 +109,7 @@ const Sidebar = ({fullName, avatar, email} : Props) => {
                   Cancel
                 </Button>
               </DialogClose>
-              <Button className="modal-submit-button" onClick={() => {}}>
-                Change
-              </Button>
+              <ProfilePicUploader />
             </DialogFooter>
           </DialogContent>
         </Dialog>
