@@ -16,6 +16,9 @@ import { cn } from '@/lib/utils'
 import FileUploader from './FileUploader'
 import { Button } from './ui/button'
 import { signOutUser } from '@/lib/actions/user.actions'
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { DialogFooter, DialogHeader } from './ui/dialog'
+import ProfilePicUploader from './ProfilePicUploader'
 
 interface Props {
   $id: string,
@@ -51,13 +54,41 @@ const MobileNavigation = ({ $id: ownerId, accountId, fullName, avatar, email }: 
       <SheetContent className='shad-sheet h-screen px-3'>
           <SheetTitle>
             <div className='header-user'>
-              <Image 
-                src={avatar}
-                alt='avatar'
-                width={44}
-                height={44}
-                className='header-user-avatar'
-              />
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button variant={null} className="px-0">
+                    <Image 
+                      src={avatar}
+                      alt='Avatar'
+                      width={44}
+                      height={44}
+                      className='header-user-avatar'
+                    />
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="shad-dialog button"> {/* className="sm:max-w-md flex flex-col items-center justify-between" */}
+                  <DialogHeader className="items-center">
+                    <DialogTitle className="text-xl">Profile Picture</DialogTitle>
+                    <DialogDescription>
+                      <Image 
+                        src={avatar}
+                        alt='Avatar'
+                        width={100}
+                        height={100}
+                        className='aspect-square w-20 rounded-full object-cover'
+                      />
+                    </DialogDescription>
+                  </DialogHeader>
+                  <DialogFooter className="flex flex-col gap-3 md:flex-row">
+                    <DialogClose asChild>
+                      <Button type="button" className="modal-cancel-button">
+                        Cancel
+                      </Button>
+                    </DialogClose>
+                    <ProfilePicUploader userId={ownerId} />
+                  </DialogFooter>
+                </DialogContent>
+             </Dialog>
               <div className="sm:hidden lg:block">
                 <p className="subtitle-2 capitalize">{fullName}</p>
                 <p className="caption">{email}</p>
