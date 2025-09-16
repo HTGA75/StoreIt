@@ -8,17 +8,18 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet"
 import Image from 'next/image'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { Separator } from '@radix-ui/react-separator'
 import { navItems } from '@/constants'
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
 import FileUploader from './FileUploader'
 import { Button } from './ui/button'
-import { signOutUser } from '@/lib/actions/user.actions'
+import { signOutUser, updateAccount } from '@/lib/actions/user.actions'
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { DialogFooter, DialogHeader } from './ui/dialog'
 import ProfilePicUploader from './ProfilePicUploader'
+import { toast } from '@/hooks/use-toast'
 
 interface Props {
   $id: string,
@@ -31,6 +32,25 @@ interface Props {
 const MobileNavigation = ({ $id: ownerId, accountId, fullName, avatar, email }: Props) => {
   const [open, setOpen] = useState(false)
   const pathname = usePathname()
+  const router = useRouter()
+
+  const removeProfilePicture = async () => {
+      try {
+        await updateAccount({userId: ownerId, fullName: fullName});
+
+        router.refresh();
+        
+        toast({
+            description: "Profile picture updated successfully",
+            className: "success-toast",
+        });
+      } catch (error) {
+          toast({
+              description: "Failed to update profile picture",
+              className: "error-toast",
+          });
+      }
+  }
 
   return (
     <header className='mobile-header'>
@@ -69,7 +89,7 @@ const MobileNavigation = ({ $id: ownerId, accountId, fullName, avatar, email }: 
                 <DialogContent className="shad-dialog button"> {/* className="sm:max-w-md flex flex-col items-center justify-between" */}
                   <DialogHeader className="items-center">
                     <DialogTitle className="text-xl">Profile Picture</DialogTitle>
-                    <DialogDescription>
+                    <DialogDescription className="flex items-center gap-2">
                       <Image 
                         src={avatar}
                         alt='Avatar'
@@ -77,6 +97,14 @@ const MobileNavigation = ({ $id: ownerId, accountId, fullName, avatar, email }: 
                         height={100}
                         className='aspect-square w-20 rounded-full object-cover'
                       />
+                      <Button variant={null} onClick={removeProfilePicture} >
+                        <Image
+                          src="/assets/icons/delete.svg"
+                          alt="avatar delete button"
+                          width={40}
+                          height={40}
+                        />
+                      </Button>
                     </DialogDescription>
                   </DialogHeader>
                   <DialogFooter className="flex flex-col gap-3 md:flex-row">
