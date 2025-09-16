@@ -77,39 +77,57 @@ export const createAccount = async ({
 
 export const updateAccount = async ({
     userId,
-    file
+    file,
+    fullName
 }: {
     userId: string
-    file: File | undefined
+    file?: File,
+    fullName?: string
 }) => {
-    const { databases, storage } = await createAdminClient()
+    const { databases, storage, avatars } = await createAdminClient()
 
     try {
-        // Convert the file to InputFile format
-        const inputFile = InputFile.fromBuffer(file, file.name);
+        if (file) {
+            const inputFile = InputFile.fromBuffer(file, file.name);
+    
+            // Upload file to storage
+            const bucketFile = await storage.createFile(
+                appwriteConfig.bucketId,
+                ID.unique(),
+                inputFile
+            );
+    
+            // Create URL using the utility function
+            const fileUrl = constructFileUrl(bucketFile.$id);
+            
+            // Update user document
+            const updatedUser = await databases.updateDocument(
+                appwriteConfig.databaseId,
+                appwriteConfig.usersCollectionId,
+                userId,
+                {
+                    avatar: fileUrl,
+                },
+            );
+            return parseStringify(updatedUser);
+        } else  if (fullName) {
+            //Generate avatar URL using Appwrite's avatar service
+            const buffer = await avatars.getInitials(fullName, 100, 100, 'fa7275');
 
-        // Upload file to storage
-        const bucketFile = await storage.createFile(
-            appwriteConfig.bucketId,
-            ID.unique(),
-            inputFile
-        );
+            const base64Avatar = Buffer.from(buffer).toString("base64");
+            const dataUrl = `data:image/png;base64,${base64Avatar}`;
 
-        // Create URL using the utility function
-        const fileUrl = constructFileUrl(bucketFile.$id);
-        console.log(fileUrl)
+            const updatedUser = await databases.updateDocument(
+                appwriteConfig.databaseId,
+                appwriteConfig.usersCollectionId,
+                userId,
+                {
+                    avatar: dataUrl,
+                },
+            );
+            return parseStringify(updatedUser);
+        }
 
-        // Update user document
-        const updatedUser = await databases.updateDocument(
-            appwriteConfig.databaseId,
-            appwriteConfig.usersCollectionId,
-            userId,
-            {
-                avatar: fileUrl,
-            },
-        );
-
-        return parseStringify(updatedUser);
     } catch (error) {
         handleError(error, "Failed to update avatar");
         return null;

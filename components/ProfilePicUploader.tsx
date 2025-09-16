@@ -10,7 +10,6 @@ import { updateAccount } from '@/lib/actions/user.actions';
 import { useRouter } from 'next/navigation';
 
 const ProfilePicUploader = ({userId}: {userId: string}) => {
-    const [file, setFile] = useState<File>()
     const { toast } = useToast();
     const router = useRouter()
 
@@ -30,7 +29,6 @@ const ProfilePicUploader = ({userId}: {userId: string}) => {
         }
 
         try {
-            setFile(acceptedFile);
             await updateAccount({
                 userId, 
                 file: acceptedFile // Use acceptedFile instead of file state

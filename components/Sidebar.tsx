@@ -18,9 +18,11 @@ import Link from 'next/link'
 import React from 'react'
 import Image from 'next/image'
 import { navItems } from '@/constants'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import ProfilePicUploader from "./ProfilePicUploader"
+import { updateAccount } from "@/lib/actions/user.actions"
+import { toast } from "@/hooks/use-toast"
 
 interface Props {
   fullName: string,
@@ -31,6 +33,26 @@ interface Props {
 
 const Sidebar = ({fullName, avatar, email, $id} : Props) => {
   const pathname = usePathname()
+  const router = useRouter()
+
+  const removeProfilePicture = async () => {
+      try {
+        await updateAccount({userId: $id, fullName: fullName});
+
+        router.refresh();
+        
+        toast({
+            description: "Profile picture updated successfully",
+            className: "success-toast",
+        });
+      } catch (error) {
+          toast({
+              description: "Failed to update profile picture",
+              className: "error-toast",
+          });
+      }
+  }
+  
   return (
     <aside className='sidebar'>
       <Link href="/">
@@ -94,14 +116,22 @@ const Sidebar = ({fullName, avatar, email, $id} : Props) => {
           <DialogContent className="shad-dialog button"> {/* className="sm:max-w-md flex flex-col items-center justify-between" */}
             <DialogHeader className="items-center">
               <DialogTitle className="text-xl">Profile Picture</DialogTitle>
-              <DialogDescription>
+              <DialogDescription className="flex items-center gap-2">
                 <Image 
                   src={avatar}
                   alt='Avatar'
                   width={100}
                   height={100}
                   className='aspect-square w-20 rounded-full object-cover'
-                />
+                /> 
+                <Button variant={null} onClick={removeProfilePicture} >
+                  <Image
+                    src="/assets/icons/delete.svg"
+                    alt="avatar delete button"
+                    width={40}
+                    height={40}
+                  />
+                </Button>
               </DialogDescription>
             </DialogHeader>
             <DialogFooter className="flex flex-col gap-3 md:flex-row">
